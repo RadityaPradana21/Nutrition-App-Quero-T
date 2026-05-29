@@ -1,0 +1,6 @@
+{
+  "name": "Quero-T",
+  "description": "Nutrisi Tepat, Hidup Sehat. Personalized nutrition recommendation platform for healthy artisan bread and pastry products.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
