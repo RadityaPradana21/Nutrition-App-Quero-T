@@ -2137,7 +2137,7 @@
                         {/* Collapsible FAQ Help */}
                         <div className="organic-card overflow-hidden">
                             <button 
-                                onClick={() => setFaqsOpen(!faqS => !faqS)}
+                                onClick={() => setFaqsOpen(prev => !prev)}
                                 className="w-full p-4 flex justify-between items-center text-left"
                             >
                                 <span className="text-xs font-black text-brand-charcoal">💡 Bantuan & FAQ Cepat</span>
