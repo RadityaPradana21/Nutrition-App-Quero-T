@@ -37,7 +37,7 @@ class QueroViewModel(application: Application) : AndroidViewModel(application) {
 
     // --- Onboarding Flow Form States ---
     val onboardingStep = MutableStateFlow(1) // 1 to 5
-    val nameInput = MutableStateFlow("Ahmad Hidayat")
+    val nameInput = MutableStateFlow("")
     val genderInput = MutableStateFlow("Laki-laki")
     val ageInput = MutableStateFlow(22)
     val heightInput = MutableStateFlow(170.0)

@@ -978,12 +978,23 @@ fun OnboardingStep1(
                 OutlinedTextField(
                     value = name,
                     onValueChange = onNameChange,
-                    placeholder = { Text("Ahmad Hidayat", color = Color(0xFF7D7667)) },
+                    placeholder = { Text("Ahmad Hidayat", color = Color(0xFF9CA3AF), fontFamily = PoppinsFontFamily, fontWeight = FontWeight.Medium) },
                     modifier = Modifier.fillMaxWidth(),
+                    textStyle = LocalTextStyle.current.copy(
+                        color = Color(0xFF2C2208),
+                        fontFamily = PoppinsFontFamily,
+                        fontWeight = FontWeight.Medium
+                    ),
                     colors = OutlinedTextFieldDefaults.colors(
+                        focusedTextColor = Color(0xFF2C2208),
+                        unfocusedTextColor = Color(0xFF2C2208),
+                        focusedContainerColor = Color(0xFFF5EDD8),
+                        unfocusedContainerColor = Color(0xFFF5EDD8),
                         focusedBorderColor = Color(0xFF566314),
                         unfocusedBorderColor = Color(0xFFCEC6B4),
-                        focusedLabelColor = Color(0xFF566314)
+                        focusedLabelColor = Color(0xFF566314),
+                        focusedPlaceholderColor = Color(0xFF9CA3AF),
+                        unfocusedPlaceholderColor = Color(0xFF9CA3AF)
                     ),
                     shape = RoundedCornerShape(12.dp),
                     singleLine = true
@@ -3178,6 +3189,7 @@ fun ProfileScreen(
     onNavigate: (String) -> Unit
 ) {
     val profile by viewModel.userProfile.collectAsState()
+    var isNotificationEnabled by remember { mutableStateOf(true) }
 
     Column(
         modifier = Modifier
@@ -3186,157 +3198,503 @@ fun ProfileScreen(
     ) {
         MockStatusBar(backgroundColor = BgCream, contentColor = DarkBrownText)
 
+        // Top App Bar
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 20.dp, vertical = 14.dp),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Text(
+                text = "Quero-T",
+                color = OliveGreen,
+                fontWeight = FontWeight.ExtraBold,
+                fontSize = 28.sp,
+                fontFamily = PoppinsFontFamily
+            )
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Icon(
+                    imageVector = Icons.Filled.Settings,
+                    contentDescription = "Pengaturan",
+                    tint = OliveGreen,
+                    modifier = Modifier
+                        .size(24.dp)
+                        .clickable { }
+                )
+                Spacer(modifier = Modifier.width(16.dp))
+                Box(
+                    modifier = Modifier
+                        .size(40.dp)
+                        .clip(CircleShape)
+                        .background(Color(0xFFDBEB8D))
+                        .border(2.dp, CreamGold, CircleShape),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Text(
+                        text = "R-T",
+                        color = Color(0xFF5D6A1B),
+                        fontWeight = FontWeight.Bold,
+                        fontSize = 14.sp,
+                        fontFamily = PoppinsFontFamily
+                    )
+                }
+            }
+        }
+
         LazyColumn(
             modifier = Modifier
                 .weight(1f)
                 .fillMaxWidth()
-                .padding(horizontal = 16.dp),
+                .padding(horizontal = 20.dp),
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
-            item {
-                Text(
-                    text = "👤 Profil Pengguna",
-                    color = DarkBrownText,
-                    fontWeight = FontWeight.Bold,
-                    fontSize = 18.sp,
-                    modifier = Modifier.padding(vertical = 12.dp)
-                )
-            }
-
-            // User header card
-            item {
-                profile?.let { prof ->
-                    Box(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .clip(RoundedCornerShape(24.dp))
-                            .background(
-                                Brush.verticalGradient(
-                                    colors = listOf(CreamGold, SurfaceLight)
-                                )
-                            )
-                            .padding(16.dp)
-                    ) {
-                        Row(
-                            modifier = Modifier.fillMaxWidth(),
-                            verticalAlignment = Alignment.CenterVertically
-                        ) {
-                            Box(
-                                modifier = Modifier
-                                    .size(54.dp)
-                                    .clip(CircleShape)
-                                    .background(Color.White),
-                                contentAlignment = Alignment.Center
-                            ) {
-                                Icon(imageVector = Icons.Filled.Person, contentDescription = "Avatar", tint = OliveGreen, modifier = Modifier.size(36.dp))
-                            }
-                            Spacer(modifier = Modifier.width(12.dp))
-                            Column {
-                                Text(text = prof.name, color = DarkBrownText, fontWeight = FontWeight.Bold, fontSize = 15.sp)
-                                Row(verticalAlignment = Alignment.CenterVertically) {
-                                    Box(
-                                        modifier = Modifier
-                                            .clip(CircleShape)
-                                            .background(OliveGreen)
-                                            .size(8.dp)
-                                    )
-                                    Spacer(modifier = Modifier.width(4.dp))
-                                    Text(text = "Aktif • ${prof.streakDays} hari streak", color = OliveGreen, fontSize = 11.sp, fontWeight = FontWeight.Bold)
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-
-            // User metrics grid
-            item {
-                profile?.let { prof ->
-                    val bmi = prof.weight / ((prof.height / 100.0) * (prof.height / 100.0))
-                    val bmiStatus = when {
-                        bmi < 18.5 -> "Underweight"
-                        bmi < 25.0 -> "Normal"
-                        bmi < 30.0 -> "Overweight"
-                        else -> "Obese"
-                    }
-                    Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
-                        Text(text = "Informasi Tubuh & Kesehatan", color = DarkBrownText, fontWeight = FontWeight.Bold, fontSize = 13.sp)
-                        Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                            MiniNutritionCell("Keadaan BMI", bmiStatus, Modifier.weight(1f))
-                            MiniNutritionCell("Tinggi", "${prof.height.toInt()} cm", Modifier.weight(1f))
-                            MiniNutritionCell("Berat", "${prof.weight.toInt()} kg", Modifier.weight(1f))
-                        }
-                    }
-                }
-            }
-
-            // Social Impact section "Tentang Quero-T"
+            // Profile Header Card
             item {
                 Box(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .clip(RoundedCornerShape(16.dp))
-                        .background(Color.White)
-                        .padding(16.dp)
+                        .clip(RoundedCornerShape(32.dp))
+                        .background(
+                            Brush.linearGradient(
+                                colors = listOf(Color(0xFFD7BD72), Color(0xFFC4A85A))
+                            )
+                        )
+                        .padding(24.dp)
                 ) {
-                    Column {
-                        Row(verticalAlignment = Alignment.CenterVertically) {
-                            Icon(imageVector = Icons.Filled.Star, contentDescription = null, tint = OliveGreen, modifier = Modifier.size(20.dp))
-                            Spacer(modifier = Modifier.width(6.dp))
-                            Text(text = "Tentang Quero-T", color = DarkBrownText, fontWeight = FontWeight.Bold, fontSize = 13.sp)
+                    Column(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalAlignment = Alignment.CenterHorizontally
+                    ) {
+                        Box(
+                            modifier = Modifier
+                                .size(80.dp)
+                                .clip(CircleShape)
+                                .background(OliveGreen)
+                                .border(4.dp, Color.White, CircleShape),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Text(
+                                text = "R-T",
+                                color = Color.White,
+                                fontWeight = FontWeight.ExtraBold,
+                                fontSize = 30.sp,
+                                fontFamily = PoppinsFontFamily
+                            )
                         }
-                        Spacer(modifier = Modifier.height(6.dp))
+                        Spacer(modifier = Modifier.height(14.dp))
                         Text(
-                            text = "Quero-T membantu masyarakat Indonesia mendapatkan nutrisi seimbang melalui produk pangan lokal yang terjangkau dan bergizi.",
-                            color = Color.Gray,
-                            fontSize = 11.sp,
-                            lineHeight = 16.sp
+                            text = "Raditya-T",
+                            color = Color.White,
+                            fontWeight = FontWeight.Bold,
+                            fontSize = 22.sp,
+                            fontFamily = PoppinsFontFamily
+                        )
+                        Text(
+                            text = "Anggota sejak Mei 2025",
+                            color = Color.White.copy(alpha = 0.9f),
+                            fontSize = 13.sp,
+                            fontWeight = FontWeight.Medium,
+                            fontFamily = PoppinsFontFamily,
+                            modifier = Modifier.padding(top = 2.dp)
+                        )
+
+                        Spacer(modifier = Modifier.height(24.dp))
+                        Box(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .height(1.dp)
+                                .background(Color.White.copy(alpha = 0.2f))
+                        )
+                        Spacer(modifier = Modifier.height(16.dp))
+
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.SpaceEvenly
+                        ) {
+                            Column(horizontalAlignment = Alignment.CenterHorizontally, modifier = Modifier.weight(1f)) {
+                                Text(text = "12", color = Color.White, fontSize = 18.sp, fontWeight = FontWeight.Bold, fontFamily = PoppinsFontFamily)
+                                Text(text = "PESANAN", color = Color.White.copy(alpha = 0.8f), fontSize = 11.sp, fontWeight = FontWeight.SemiBold, fontFamily = PoppinsFontFamily)
+                            }
+                            Box(modifier = Modifier.width(1.dp).height(32.dp).background(Color.White.copy(alpha = 0.3f)))
+                            Column(horizontalAlignment = Alignment.CenterHorizontally, modifier = Modifier.weight(1f)) {
+                                Text(text = "850", color = Color.White, fontSize = 18.sp, fontWeight = FontWeight.Bold, fontFamily = PoppinsFontFamily)
+                                Text(text = "KALORI AVG", color = Color.White.copy(alpha = 0.8f), fontSize = 11.sp, fontWeight = FontWeight.SemiBold, fontFamily = PoppinsFontFamily)
+                            }
+                            Box(modifier = Modifier.width(1.dp).height(32.dp).background(Color.White.copy(alpha = 0.3f)))
+                            Column(horizontalAlignment = Alignment.CenterHorizontally, modifier = Modifier.weight(1f)) {
+                                Text(text = "5 Hari 🔥", color = Color.White, fontSize = 18.sp, fontWeight = FontWeight.Bold, fontFamily = PoppinsFontFamily)
+                                Text(text = "STREAK", color = Color.White.copy(alpha = 0.8f), fontSize = 11.sp, fontWeight = FontWeight.SemiBold, fontFamily = PoppinsFontFamily)
+                            }
+                        }
+                    }
+                }
+            }
+
+            // Health Goals Section
+            item {
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .clip(RoundedCornerShape(24.dp))
+                        .background(Color.White)
+                        .padding(20.dp)
+                ) {
+                    Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.SpaceBetween,
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Text(
+                                text = "Tujuan Kesehatan",
+                                color = DarkBrownText,
+                                fontWeight = FontWeight.Bold,
+                                fontSize = 18.sp,
+                                fontFamily = PoppinsFontFamily
+                            )
+                            Box(
+                                modifier = Modifier
+                                    .size(36.dp)
+                                    .clip(CircleShape)
+                                    .background(Color(0xFFFFF8F1))
+                                    .clickable { },
+                                contentAlignment = Alignment.Center
+                            ) {
+                                Text(text = "✏️", fontSize = 14.sp)
+                            }
+                        }
+
+                        Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                            Row(
+                                modifier = Modifier
+                                    .clip(RoundedCornerShape(50.dp))
+                                    .background(OliveGreen)
+                                    .padding(horizontal = 14.dp, vertical = 6.dp),
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                Text(text = "🌱", fontSize = 12.sp)
+                                Spacer(modifier = Modifier.width(4.dp))
+                                Text(
+                                    text = "Menjaga Kesehatan",
+                                    color = Color.White,
+                                    fontSize = 12.sp,
+                                    fontWeight = FontWeight.SemiBold,
+                                    fontFamily = PoppinsFontFamily
+                                )
+                            }
+                            Row(
+                                modifier = Modifier
+                                    .clip(RoundedCornerShape(50.dp))
+                                    .background(Color(0xFFFAE6BE))
+                                    .padding(horizontal = 14.dp, vertical = 6.dp),
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                Text(text = "⚡", fontSize = 12.sp)
+                                Spacer(modifier = Modifier.width(4.dp))
+                                Text(
+                                    text = "Aktivitas Sedang",
+                                    color = DarkBrownText,
+                                    fontSize = 12.sp,
+                                    fontWeight = FontWeight.SemiBold,
+                                    fontFamily = PoppinsFontFamily
+                                )
+                            }
+                        }
+
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .clip(RoundedCornerShape(12.dp))
+                                .background(Color(0xFFD7BD72).copy(alpha = 0.15f))
+                                .border(1.dp, Color(0xFFD7BD72).copy(alpha = 0.3f), RoundedCornerShape(12.dp))
+                                .padding(12.dp),
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.SpaceBetween
+                        ) {
+                            Row(verticalAlignment = Alignment.CenterVertically) {
+                                Text(text = "📊", fontSize = 16.sp)
+                                Spacer(modifier = Modifier.width(8.dp))
+                                Text(
+                                    text = "BMI: 22.4 — Normal ✓",
+                                    color = DarkBrownText,
+                                    fontWeight = FontWeight.Bold,
+                                    fontSize = 14.sp,
+                                    fontFamily = PoppinsFontFamily
+                                )
+                            }
+                            Icon(
+                                imageVector = Icons.Default.Info,
+                                contentDescription = null,
+                                tint = OliveGreen,
+                                modifier = Modifier.size(16.dp)
+                            )
+                        }
+                    }
+                }
+            }
+
+            // Body Metrics Card
+            item {
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .clip(RoundedCornerShape(24.dp))
+                        .background(Color.White)
+                        .padding(20.dp)
+                ) {
+                    Column(verticalArrangement = Arrangement.spacedBy(14.dp)) {
+                        Text(
+                            text = "Data Tubuh",
+                            color = DarkBrownText,
+                            fontWeight = FontWeight.Bold,
+                            fontSize = 18.sp,
+                            fontFamily = PoppinsFontFamily
+                        )
+
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.spacedBy(12.dp)
+                        ) {
+                            Box(
+                                modifier = Modifier
+                                    .weight(1f)
+                                    .clip(RoundedCornerShape(16.dp))
+                                    .background(Color(0xFFFFF2DC))
+                                    .padding(12.dp)
+                            ) {
+                                Column {
+                                    Text(text = "Usia", color = Color(0xFF4C4639), fontSize = 12.sp, fontWeight = FontWeight.SemiBold, fontFamily = PoppinsFontFamily)
+                                    Text(text = "22 tahun", color = DarkBrownText, fontSize = 15.sp, fontWeight = FontWeight.Bold, fontFamily = PoppinsFontFamily)
+                                }
+                            }
+                            Box(
+                                modifier = Modifier
+                                    .weight(1f)
+                                    .clip(RoundedCornerShape(16.dp))
+                                    .background(Color(0xFFFFF2DC))
+                                    .padding(12.dp)
+                            ) {
+                                Column {
+                                    Text(text = "Tinggi", color = Color(0xFF4C4639), fontSize = 12.sp, fontWeight = FontWeight.SemiBold, fontFamily = PoppinsFontFamily)
+                                    Text(text = "170 cm", color = DarkBrownText, fontSize = 15.sp, fontWeight = FontWeight.Bold, fontFamily = PoppinsFontFamily)
+                                }
+                            }
+                        }
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.spacedBy(12.dp)
+                        ) {
+                            Box(
+                                modifier = Modifier
+                                    .weight(1f)
+                                    .clip(RoundedCornerShape(16.dp))
+                                    .background(Color(0xFFFFF2DC))
+                                    .padding(12.dp)
+                            ) {
+                                Column {
+                                    Text(text = "Berat", color = Color(0xFF4C4639), fontSize = 12.sp, fontWeight = FontWeight.SemiBold, fontFamily = PoppinsFontFamily)
+                                    Text(text = "65 kg", color = DarkBrownText, fontSize = 15.sp, fontWeight = FontWeight.Bold, fontFamily = PoppinsFontFamily)
+                                }
+                            }
+                            Box(
+                                modifier = Modifier
+                                    .weight(1f)
+                                    .clip(RoundedCornerShape(16.dp))
+                                    .background(Color(0xFFFFF2DC))
+                                    .padding(12.dp)
+                            ) {
+                                Column {
+                                    Text(text = "Kalori Target", color = Color(0xFF4C4639), fontSize = 12.sp, fontWeight = FontWeight.SemiBold, fontFamily = PoppinsFontFamily)
+                                    Text(text = "2.100 kcal", color = DarkBrownText, fontSize = 15.sp, fontWeight = FontWeight.Bold, fontFamily = PoppinsFontFamily)
+                                }
+                            }
+                        }
+
+                        Button(
+                            onClick = { },
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .border(2.dp, OliveGreen, RoundedCornerShape(12.dp)),
+                            colors = ButtonDefaults.buttonColors(containerColor = Color.Transparent),
+                            contentPadding = PaddingValues(vertical = 12.dp)
+                        ) {
+                            Row(verticalAlignment = Alignment.CenterVertically) {
+                                Text(text = "📏 ", fontSize = 14.sp)
+                                Text(
+                                    text = "Edit Data Tubuh",
+                                    color = OliveGreen,
+                                    fontWeight = FontWeight.Bold,
+                                    fontSize = 14.sp,
+                                    fontFamily = PoppinsFontFamily
+                                )
+                            }
+                        }
+                    }
+                }
+            }
+
+            // Menu List Card
+            item {
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .clip(RoundedCornerShape(24.dp))
+                        .background(Color.White)
+                ) {
+                    Column(modifier = Modifier.fillMaxWidth()) {
+                        ProfileMenuRow(
+                            icon = Icons.Filled.List,
+                            title = "Riwayat Pesanan",
+                            subtitle = "12 pesanan telah diselesaikan",
+                            onClick = { onNavigate("NUTRITION") }
+                        )
+                        Box(modifier = Modifier.fillMaxWidth().height(1.dp).background(Color(0xFFF5EDD8)))
+                        ProfileMenuRow(
+                            icon = Icons.Filled.Favorite,
+                            title = "Produk Favorit",
+                            subtitle = "5 produk tersimpan",
+                            onClick = { onNavigate("CATALOG") }
+                        )
+                        Box(modifier = Modifier.fillMaxWidth().height(1.dp).background(Color(0xFFF5EDD8)))
+                        
+                        // Notifications Switch Item
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(vertical = 12.dp, horizontal = 16.dp),
+                            horizontalArrangement = Arrangement.SpaceBetween,
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Row(verticalAlignment = Alignment.CenterVertically) {
+                                Icon(imageVector = Icons.Filled.Notifications, contentDescription = null, tint = OliveGreen, modifier = Modifier.size(22.dp))
+                                Spacer(modifier = Modifier.width(14.dp))
+                                Text(
+                                    text = "Notifikasi",
+                                    color = DarkBrownText,
+                                    fontSize = 14.sp,
+                                    fontWeight = FontWeight.Bold,
+                                    fontFamily = PoppinsFontFamily
+                                )
+                            }
+                            Switch(
+                                checked = isNotificationEnabled,
+                                onCheckedChange = { isNotificationEnabled = it },
+                                colors = SwitchDefaults.colors(
+                                    checkedThumbColor = Color.White,
+                                    checkedTrackColor = OliveGreen,
+                                    uncheckedThumbColor = Color.White,
+                                    uncheckedTrackColor = Color.LightGray
+                                )
+                            )
+                        }
+                        Box(modifier = Modifier.fillMaxWidth().height(1.dp).background(Color(0xFFF5EDD8)))
+                        ProfileMenuRow(
+                            icon = Icons.Filled.Star,
+                            title = "Metode Pembayaran",
+                            onClick = { onNavigate("CART") }
+                        )
+                        Box(modifier = Modifier.fillMaxWidth().height(1.dp).background(Color(0xFFF5EDD8)))
+                        ProfileMenuRow(
+                            icon = Icons.Filled.Star,
+                            title = "Status Langganan",
+                            subtitle = "Weekly Pack aktif ✓",
+                            subtitleColor = WarmOrange,
+                            onClick = { onNavigate("SMART_RECOMMEND") }
+                        )
+                        Box(modifier = Modifier.fillMaxWidth().height(1.dp).background(Color(0xFFF5EDD8)))
+                        ProfileMenuRow(
+                            icon = Icons.Default.Info,
+                            title = "Bantuan & FAQ"
+                        )
+                        Box(modifier = Modifier.fillMaxWidth().height(1.dp).background(Color(0xFFF5EDD8)))
+                        ProfileMenuRow(
+                            icon = Icons.Default.Info,
+                            title = "Syarat & Ketentuan"
                         )
                     }
                 }
             }
 
-            // Navigation items list
+            // Logout Button
             item {
-                Column(
+                Button(
+                    onClick = { onNavigate("LOGIN") },
                     modifier = Modifier
                         .fillMaxWidth()
-                        .clip(RoundedCornerShape(16.dp))
-                        .background(Color.White)
-                        .padding(8.dp)
+                        .padding(bottom = 16.dp)
+                        .border(2.dp, Color(0xFFBA1A1A).copy(alpha = 0.5f), RoundedCornerShape(16.dp)),
+                    colors = ButtonDefaults.buttonColors(containerColor = Color.Transparent),
+                    contentPadding = PaddingValues(14.dp)
                 ) {
-                    ProfileMenuRow(icon = Icons.Filled.List, title = "Riwayat Pesanan")
-                    ProfileMenuRow(icon = Icons.Outlined.FavoriteBorder, title = "Produk Favorit")
-                    ProfileMenuRow(icon = Icons.Outlined.Notifications, title = "Preferensi Notifikasi")
-                    ProfileMenuRow(icon = Icons.Filled.Star, title = "Langganan Mingguan Aktif")
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.Center
+                    ) {
+                        Text(text = "🚪 ", fontSize = 16.sp)
+                        Spacer(modifier = Modifier.width(6.dp))
+                        Text(
+                            text = "Keluar dari Akun",
+                            color = Color(0xFFBA1A1A),
+                            fontWeight = FontWeight.Bold,
+                            fontSize = 14.sp,
+                            fontFamily = PoppinsFontFamily
+                        )
+                    }
                 }
             }
-            item { Spacer(modifier = Modifier.height(16.dp)) }
         }
 
-        UserBottomNavigation(activeScreen = "PROFILE", cartCount = 0, onTabSelected = onNavigate)
+        MainBottomNavBar(currentRoute = "PROFILE", onNavigate = onNavigate)
     }
 }
 
 @Composable
 fun ProfileMenuRow(
     icon: ImageVector,
-    title: String
+    title: String,
+    subtitle: String? = null,
+    subtitleColor: Color = Color(0xFF4C4639),
+    onClick: () -> Unit = {}
 ) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .clickable { }
-            .padding(12.dp),
+            .clickable(onClick = onClick)
+            .padding(vertical = 12.dp, horizontal = 16.dp),
         horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.CenterVertically
     ) {
         Row(verticalAlignment = Alignment.CenterVertically) {
-            Icon(imageVector = icon, contentDescription = null, tint = OliveGreen, modifier = Modifier.size(20.dp))
-            Spacer(modifier = Modifier.width(12.dp))
-            Text(text = title, color = DarkBrownText, fontSize = 12.sp, fontWeight = FontWeight.SemiBold)
+            Icon(imageVector = icon, contentDescription = null, tint = OliveGreen, modifier = Modifier.size(22.dp))
+            Spacer(modifier = Modifier.width(14.dp))
+            Column {
+                Text(
+                    text = title,
+                    color = DarkBrownText,
+                    fontSize = 14.sp,
+                    fontWeight = FontWeight.Bold,
+                    fontFamily = PoppinsFontFamily
+                )
+                if (subtitle != null) {
+                    Text(
+                        text = subtitle,
+                        color = subtitleColor,
+                        fontSize = 12.sp,
+                        fontWeight = FontWeight.SemiBold,
+                        fontFamily = PoppinsFontFamily,
+                        modifier = Modifier.padding(top = 2.dp)
+                    )
+                }
+            }
         }
-        Icon(imageVector = Icons.Default.ArrowForward, contentDescription = null, tint = Color.LightGray, modifier = Modifier.size(16.dp))
+        Icon(
+            imageVector = Icons.Default.ArrowForward,
+            contentDescription = null,
+            tint = Color.LightGray,
+            modifier = Modifier.size(18.dp)
+        )
     }
 }
 
